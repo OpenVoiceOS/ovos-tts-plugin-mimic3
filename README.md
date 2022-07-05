@@ -1,12 +1,12 @@
-# Mimic 3 Text to Speech Plugin
+## Description
 
-Text to speech plugin for [Mycroft](https://mycroft.ai) using [Mimic 3](https://github.com/MycroftAI/mimic3).
+OVOS TTS plugin for [Mimic3](https://github.com/MycroftAI/mimic3)
 
 * [Available voices](https://github.com/MycroftAI/mimic3-voices)
 * [Documentation](https://mycroft-ai.gitbook.io/docs/mycroft-technologies/mimic-tts/coming-soon-mimic-3)
 
 
-## Installation
+## Install
 
 Install the necessary system packages:
 
@@ -20,46 +20,34 @@ On 32-bit ARM platforms (a.k.a. `armv7l` or `armhf`), you will also need some ex
 sudo apt-get install libatomic1 libgomp1 libatlas-base-dev
 ```
 
-Then, ensure that you're using the latest `pip`:
+install the TTS plugin in Mycroft:
 
-```sh
-mycroft-pip install --upgrade pip
-```
-
-Next, install the TTS plugin in Mycroft:
-
-```sh
-mycroft-pip install mycroft-plugin-tts-mimic3[all]
-```
+`pip install ovos-tts-plugin-mimic3[all}]`
 
 Removing `[all]` will install support for English only.
 
 Additional language support can be selectively installed by replacing `all` with a two-character language code, such as `de` (German) or `fr` (French).
 See [`setup.py`](https://github.com/MycroftAI/mimic3/blob/master/setup.py) for an up-to-date list of language codes.
 
-Enable the plugin in your [mycroft.conf](https://mycroft-ai.gitbook.io/docs/using-mycroft-ai/customizations/mycroft-conf) file:
-
-``` sh
-mycroft-config set tts.module mimic3_tts_plug
-```
-
-or you can manually add the following to `mycroft.conf` with `mycroft-config edit user`:
+## Configuration
 
 ``` json
-"tts": {
-  "module": "mimic3_tts_plug"
-}
+  "tts": {
+    "module": "ovos-tts-plugin-mimic3",
+    "ovos-tts-plugin-mimic3": {
+      "voice": "en_UK/apope_low",
+    }
+  }
 ```
 
 
-## Plugin Options
+### Advanced config
 
-Additional settings can be configured in `mycroft.conf`:
 
 ``` json
 "tts": {
-  "module": "mimic3_tts_plug",
-  "mimic3_tts_plug": {
+  "module": "ovos-tts-plugin-mimic3",
+  "ovos-tts-plugin-mimic3": {
       "voice": "en_US/cmu-arctic_low",  // default voice
       "speaker": "fem",  // default speaker
       "length_scale": 1.0,  // speaking rate

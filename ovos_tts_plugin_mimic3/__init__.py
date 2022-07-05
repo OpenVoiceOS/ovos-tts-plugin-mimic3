@@ -2,18 +2,14 @@ import io
 import re
 import typing
 import wave
-from pathlib import Path
 from os.path import join
-from ovos_plugin_manager.tts import TTS
-from ovos_utils.xdg_utils import xdg_data_home
-from ovos_utils.file_utils import get_cache_directory
+from pathlib import Path
 from threading import Lock
-from mimic3_tts import (
-    AudioResult,
-    Mimic3Settings,
-    Mimic3TextToSpeechSystem,
-    SSMLSpeaker,
-)
+
+from mimic3_tts import AudioResult, Mimic3Settings, Mimic3TextToSpeechSystem, SSMLSpeaker
+from ovos_plugin_manager.tts import TTS
+from ovos_utils.file_utils import get_cache_directory
+from ovos_utils.xdg_utils import xdg_data_home
 
 
 class Mimic3TTSPlugin(TTS):
@@ -22,6 +18,7 @@ class Mimic3TTSPlugin(TTS):
         # TODO add default voice for every lang
         "en": "en_US/cmu-arctic_low",
         "en-uk": "en_UK/apope_low",
+        "en-gb": "en_UK/apope_low",
         "de": "de_DE/thorsten_low",
         "bn": "bn/multi_low",
         "af": "af_ZA/google-nwu_low",
@@ -87,8 +84,11 @@ class Mimic3TTSPlugin(TTS):
             def_voice = self.tts.voice
             if voice:
                 self.tts.voice = voice
-            elif lang and lang in self.default_voices:
-                self.tts.voice = self.default_voices[lang]
+            elif lang:
+                if lang not in self.default_voices:
+                    lang = lang.split("-")[0]
+                if lang in self.default_voices:
+                    self.tts.voice = self.default_voices[lang]
             if speaker:
                 self.tts.speaker = speaker
 
@@ -183,4 +183,3 @@ class Mimic3TTSPlugin(TTS):
             wav_bytes = wav_io.getvalue()
 
         return wav_bytes
-

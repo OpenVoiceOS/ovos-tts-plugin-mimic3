@@ -19,9 +19,22 @@ from mimic3_tts import (
 class Mimic3TTSPlugin(TTS):
     """Mycroft interface to Mimic3."""
     default_voices = {
-        # TODO add default voice per lang
-        "en-us": "en_US/cmu-arctic_low",
-        "en-uk": "en_UK/apope_low"
+        # TODO add default voice for every lang
+        "en": "en_US/cmu-arctic_low",
+        "en-uk": "en_UK/apope_low",
+        "de": "de_DE/thorsten_low",
+        "bn": "bn/multi_low",
+        "af": "af_ZA/google-nwu_low",
+        "es": "es_ES/m-ailabs_low",
+        "fa": "fa/haaniye_low",
+        "fi": "fi_FI/harri-tapani-ylilammi_low",
+        "fr": "fr_FR/m-ailabs_low",
+        "it": "it_IT/mls_low",
+        "ko": "ko_KO/kss_low",
+        "nl": "nl/bart-de-leeuw_low",
+        "pl": "pl_PL/m-ailabs_low",
+        "ru": "ru_RU/multi_low",
+        "uk": "uk_UK/m-ailabs_low"
     }
 
     def __init__(self, lang="en-us", config=None):
@@ -58,6 +71,8 @@ class Mimic3TTSPlugin(TTS):
             self.tts.preload_voice(voice)
 
         for lang in preload_langs:
+            if lang not in self.default_voices:
+                lang = lang.split("-")[0]
             voice = self.default_voices.get(lang)
             if voice:
                 self.tts.preload_voice(voice)

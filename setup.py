@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-from collections import defaultdict
 import os
 
 from setuptools import setup
@@ -51,35 +50,12 @@ def required(requirements_file):
                 if pkg.strip() and not pkg.startswith("#")]
 
 
-# -----------------------------------------------------------------------------
-
-# dependency => [tags]
-extras = {}
-
-# Create language-specific extras
-for lang in [
-    "de",
-    "es",
-    "fa",
-    "fr",
-    "it",
-    "nl",
-    "ru",
-    "sw",
-]:
-    extras[f"mycroft-mimic3-tts[{lang}]"] = [lang]
-
-# Add "all" tag
-for tags in extras.values():
-    tags.append("all")
-
-# Invert for setup
-extras_require = defaultdict(list)
-for dep, tags in extras.items():
-    for tag in tags:
-        extras_require[tag].append(dep)
-
-# -----------------------------------------------------------------------------
+def get_lang_extras():
+    # Create language-specific extras
+    langs = ["de", "es", "fa", "fr", "it", "nl", "ru", "sw"]
+    extras = {lang: f"mycroft-mimic3-tts[{lang}]" for lang in langs}
+    extras["all"] = [f"mycroft-mimic3-tts[{lang}]" for lang in langs]
+    return extras
 
 
 PLUGIN_ENTRY_POINT = "ovos-tts-plugin-mimic3 = ovos_tts_plugin_mimic3:Mimic3TTSPlugin"
@@ -92,7 +68,7 @@ setup(
     license="AGPL",
     packages=['ovos_tts_plugin_mimic3'],
     install_requires=required("requirements.txt"),
-    extras_require=extras_require,
+    extras_require=get_lang_extras(),
     classifiers=[
         "Development Status :: 3 - Alpha",
         "Intended Audience :: Developers",

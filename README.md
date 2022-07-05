@@ -27,7 +27,7 @@ install the TTS plugin in Mycroft:
 Removing `[all]` will install support for English only.
 
 Additional language support can be selectively installed by replacing `all` with a two-character language code, such as `de` (German) or `fr` (French).
-See [`setup.py`](https://github.com/MycroftAI/mimic3/blob/master/setup.py) for an up-to-date list of language codes.
+See [`setup.py`](https://github.com/OpenVoiceOS/ovos-tts-plugin-mimic3/blob/master/setup.py#L55) for an up-to-date list of language codes.
 
 ## Configuration
 

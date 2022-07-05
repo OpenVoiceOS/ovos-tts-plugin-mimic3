@@ -22,7 +22,7 @@ sudo apt-get install libatomic1 libgomp1 libatlas-base-dev
 
 install the TTS plugin in Mycroft:
 
-`pip install ovos-tts-plugin-mimic3[all}]`
+`pip install ovos-tts-plugin-mimic3[all]`
 
 Removing `[all]` will install support for English only.
 

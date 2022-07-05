@@ -7,7 +7,7 @@ from os.path import join
 from ovos_plugin_manager.tts import TTS
 from ovos_utils.xdg_utils import xdg_data_home
 from ovos_utils.file_utils import get_cache_directory
-from combo_lock import NamedLock
+from threading import Lock
 from mimic3_tts import (
     AudioResult,
     Mimic3Settings,
@@ -26,7 +26,7 @@ class Mimic3TTSPlugin(TTS):
 
     def __init__(self, lang="en-us", config=None):
         super().__init__(lang, config)
-        self.lock = NamedLock("mimic3synth")
+        self.lock = Lock()
         self.lang = self.config.get("language") or self.lang
         preload_voices = self.config.get("preload_voices") or []
         preload_langs = self.config.get("preload_langs") or [self.lang]

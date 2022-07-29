@@ -59,6 +59,8 @@ def get_lang_extras():
 
 
 PLUGIN_ENTRY_POINT = "ovos-tts-plugin-mimic3 = ovos_tts_plugin_mimic3:Mimic3TTSPlugin"
+SAMPLE_CONFIGS = 'ovos-tts-plugin-mimic3.config = ovos_tts_plugin_mimic3:Mimic3TTSPluginConfig'
+
 setup(
     name="ovos-tts-plugin-mimic3",
     version=get_version(),
@@ -79,5 +81,6 @@ setup(
         "Programming Language :: Python :: 3.9",
     ],
     keywords="mycroft plugin tts mimic mimic3",
-    entry_points={"mycroft.plugin.tts": PLUGIN_ENTRY_POINT},
+    entry_points={"mycroft.plugin.tts": PLUGIN_ENTRY_POINT,
+                  'mycroft.plugin.tts.config': SAMPLE_CONFIGS},
 )

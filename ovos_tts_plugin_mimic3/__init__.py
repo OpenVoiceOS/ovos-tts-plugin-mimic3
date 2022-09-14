@@ -34,7 +34,18 @@ class Mimic3TTSPlugin(TTS):
     }
 
     def __init__(self, lang="en-us", config=None):
-        super().__init__(lang, config)
+        ssml_tags = [
+            "speak",
+            "s",
+            "w",
+            "voice",
+            "prosody",
+            "say-as",
+            "break",
+            "sub",
+            "phoneme",
+        ]
+        super().__init__(lang, config, ssml_tags=ssml_tags)
         self.lock = Lock()
         self.lang = self.config.get("language") or self.lang
         preload_voices = self.config.get("preload_voices") or []

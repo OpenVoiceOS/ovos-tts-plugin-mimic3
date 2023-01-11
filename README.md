@@ -35,7 +35,7 @@ See [`setup.py`](https://github.com/OpenVoiceOS/ovos-tts-plugin-mimic3/blob/mast
   "tts": {
     "module": "ovos-tts-plugin-mimic3",
     "ovos-tts-plugin-mimic3": {
-      "voice": "en_UK/apope_low",
+      "voice": "en_UK/apope_low"
     }
   }
 ```

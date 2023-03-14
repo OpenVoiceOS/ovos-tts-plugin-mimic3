@@ -1,8 +1,8 @@
 # Changelog
 
-## [Unreleased](https://github.com/OpenVoiceOS/ovos-tts-plugin-mimic3/tree/HEAD)
+## [V0.0.0a2](https://github.com/OpenVoiceOS/ovos-tts-plugin-mimic3/tree/V0.0.0a2) (2023-01-11)
 
-[Full Changelog](https://github.com/OpenVoiceOS/ovos-tts-plugin-mimic3/compare/release/v0.1.5...HEAD)
+[Full Changelog](https://github.com/OpenVoiceOS/ovos-tts-plugin-mimic3/compare/release/v0.1.5...V0.0.0a2)
 
 **Implemented enhancements:**
 

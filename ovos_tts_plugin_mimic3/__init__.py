@@ -107,7 +107,7 @@ class Mimic3TTSPlugin(TTS):
                 voice = self.default_voices[lang]
             else:
                 raise ValueError(f"Selected lang {lang} is not supported!")
-        elif speaker:
+        elif speaker and isinstance(speaker, str):
             pass  # TODO validate speaker is valid for default voice
         else:
             voice = self.voice

@@ -1,5 +1,21 @@
 # Changelog
 
+## [Unreleased](https://github.com/OpenVoiceOS/ovos-tts-plugin-mimic3/tree/HEAD)
+
+[Full Changelog](https://github.com/OpenVoiceOS/ovos-tts-plugin-mimic3/compare/V0.0.0...HEAD)
+
+**Fixed bugs:**
+
+- Patch `speaker` param checks [\#9](https://github.com/OpenVoiceOS/ovos-tts-plugin-mimic3/pull/9) ([NeonDaniel](https://github.com/NeonDaniel))
+
+**Closed issues:**
+
+- Cannot install because these package versions have conflicting dependencies. [\#7](https://github.com/OpenVoiceOS/ovos-tts-plugin-mimic3/issues/7)
+
+## [V0.0.0](https://github.com/OpenVoiceOS/ovos-tts-plugin-mimic3/tree/V0.0.0) (2023-03-14)
+
+[Full Changelog](https://github.com/OpenVoiceOS/ovos-tts-plugin-mimic3/compare/V0.0.0a4...V0.0.0)
+
 ## [V0.0.0a4](https://github.com/OpenVoiceOS/ovos-tts-plugin-mimic3/tree/V0.0.0a4) (2023-03-14)
 
 [Full Changelog](https://github.com/OpenVoiceOS/ovos-tts-plugin-mimic3/compare/V0.0.0a3...V0.0.0a4)

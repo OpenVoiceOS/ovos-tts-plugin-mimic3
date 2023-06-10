@@ -2,7 +2,15 @@
 
 ## [Unreleased](https://github.com/OpenVoiceOS/ovos-tts-plugin-mimic3/tree/HEAD)
 
-[Full Changelog](https://github.com/OpenVoiceOS/ovos-tts-plugin-mimic3/compare/V0.0.0...HEAD)
+[Full Changelog](https://github.com/OpenVoiceOS/ovos-tts-plugin-mimic3/compare/V0.0.1a1...HEAD)
+
+**Merged pull requests:**
+
+- Neon patch [\#10](https://github.com/OpenVoiceOS/ovos-tts-plugin-mimic3/pull/10) ([mikejgray](https://github.com/mikejgray))
+
+## [V0.0.1a1](https://github.com/OpenVoiceOS/ovos-tts-plugin-mimic3/tree/V0.0.1a1) (2023-06-06)
+
+[Full Changelog](https://github.com/OpenVoiceOS/ovos-tts-plugin-mimic3/compare/V0.0.0...V0.0.1a1)
 
 **Fixed bugs:**
 

@@ -8,6 +8,7 @@ from ovos_plugin_manager.tts import TTS
 from ovos_utils.xdg_utils import xdg_data_home
 from pathlib import Path
 from threading import Lock
+from ovos_utils.log import LOG
 
 
 class Mimic3TTSPlugin(TTS):
@@ -35,21 +36,22 @@ class Mimic3TTSPlugin(TTS):
     def __init__(self, lang="en-us", config=None):
         ssml_tags = ["speak", "s", "w", "voice", "prosody", "say-as", "break", "sub", "phoneme"]
         super().__init__(lang, config, ssml_tags=ssml_tags)
+        self.speaker = self.config.get("speaker")
         self.lock = Lock()
         self.lang = self.config.get("language") or self.lang
         preload_voices = self.config.get("preload_voices") or []
         preload_langs = self.config.get("preload_langs") or [self.lang]
-        default_voice = self.config.get("voice")
+
         voice_dl = self.config.get("voices_download_dir") or join(xdg_data_home(), "mycroft", "mimic3", "voices")
         voice_dirs = self.config.get("voices_directories") or [voice_dl]
 
         self.tts = Mimic3TextToSpeechSystem(
             Mimic3Settings(
-                voice=default_voice,
+                voice=self.voice,
                 language=self.lang,
                 voices_directories=voice_dirs,
                 voices_url_format=self.config.get("voices_url_format"),
-                speaker=self.config.get("speaker"),
+                speaker=self.speaker,
                 length_scale=self.config.get("length_scale"),
                 noise_scale=self.config.get("noise_scale"),
                 noise_w=self.config.get("noise_w"),
@@ -60,8 +62,8 @@ class Mimic3TTSPlugin(TTS):
             )
         )
 
-        if default_voice:
-            self.default_voices[self.lang] = default_voice
+        if self.voice:
+            self.default_voices[self.lang] = self.voice
 
         for voice in preload_voices:
             self.tts.preload_voice(voice)
@@ -73,33 +75,71 @@ class Mimic3TTSPlugin(TTS):
             if voice:
                 self.tts.preload_voice(voice)
 
+    def _validate_args_combo(self, lang=None, voice=None, speaker=None):
+        # HACK: bug in some neon-core versions - neon_audio.tts.neon:_get_tts:198 - INFO - Legacy Neon TTS signature found 
+        if isinstance(speaker, dict):
+            LOG.warning("Legacy Neon TTS signature found, pass speaker as a str")
+            speaker = None
+        if voice:
+            if "#" in voice:
+                voice, new_speaker = voice.split("#")
+                if speaker and speaker != new_speaker:
+                    LOG.warning(f"speaker defined twice! choosing {new_speaker} over {speaker} for voice: {voice}")
+                speaker = new_speaker
+        elif lang:
+            if lang not in self.default_voices:
+                lang = lang.split("-")[0]
+            if lang in self.default_voices:
+                voice = self.default_voices[lang]
+            else:
+                raise ValueError(f"Selected lang {lang} is not supported!")
+        elif speaker and isinstance(speaker, str):
+            pass  # TODO validate speaker is valid for default voice
+        else:
+            voice = self.voice
+            speaker = self.speaker
+
+        if lang:
+            a, b = lang.split("-")
+            lang = f"{a}_{b.upper()}"
+
+            if "/" in voice:
+                new_lang = voice.split("/")[0]
+                if new_lang == "en_UK" and lang != "en_UK":
+                    new_lang = "en_GB"  # mimic3 uses wrong lang code
+                if new_lang != lang:
+                    LOG.warning(f"lang defined twice! choosing {new_lang} over {lang} for voice: {voice}")
+                    lang = new_lang
+                voice = voice.split("/")[-1]
+
+            if lang == "en_GB":
+                lang = "en_UK"  # mimic3 uses wrong lang code
+            if not voice.startswith(lang):
+                voice = f"{lang}/{voice}"
+
+        if "#" in voice:
+            voice, speaker = voice.split("#")
+
+        return voice, speaker, lang
+
     def get_tts(self, sentence, wav_file, lang=None, voice=None, speaker=None):
         """Synthesize audio using Mimic3 on device"""
+
+        voice, speaker, lang = self._validate_args_combo(lang, voice, speaker)
 
         # support optional args for lang/voice/etc per request
         # a lock is used because we modify internal self.tts state
         with self.lock:
-            def_speaker = self.tts.speaker
-            def_voice = self.tts.voice
-            if voice:
-                self.tts.voice = voice
-            elif lang:
-                if lang not in self.default_voices:
-                    lang = lang.split("-")[0]
-                if lang in self.default_voices:
-                    self.tts.voice = self.default_voices[lang]
-            if speaker:
-                self.tts.speaker = speaker
-
             # self.tts.settings.length_scale = length_scale
             # self.tts.settings.noise_scale = noise_scale
             # self.tts.settings.noise_w = noise_w
 
+            self.tts.voice = voice or self.tts.voice
+            self.tts.speaker = speaker or self.tts.speaker
+            # self.tts.language = lang or self.lang
+
             sentence, ssml = self._apply_text_hacks(sentence)
             wav_bytes = self._mimic3_synth(sentence, ssml=ssml)
-
-            self.tts.voice = def_voice
-            self.tts.speaker = def_speaker
 
         # Write WAV to file
         Path(wav_file).write_bytes(wav_bytes)
@@ -199,23 +239,23 @@ class Mimic3TTSPlugin(TTS):
 Mimic3TTSPluginConfig = {
     'af-za': [
         {'speaker': '7214', 'voice': 'af_ZA/google-nwu_low',
-               'meta': {'offline': True, 'display_name': 'Google-Nwu - 7214', 'gender': '', 'priority': 50}},
-              {'speaker': '8963', 'voice': 'af_ZA/google-nwu_low',
-               'meta': {'offline': True, 'display_name': 'Google-Nwu - 8963', 'gender': '', 'priority': 50}},
-              {'speaker': '7130', 'voice': 'af_ZA/google-nwu_low',
-               'meta': {'offline': True, 'display_name': 'Google-Nwu - 7130', 'gender': '', 'priority': 50}},
-              {'speaker': '8924', 'voice': 'af_ZA/google-nwu_low',
-               'meta': {'offline': True, 'display_name': 'Google-Nwu - 8924', 'gender': '', 'priority': 50}},
-              {'speaker': '8148', 'voice': 'af_ZA/google-nwu_low',
-               'meta': {'offline': True, 'display_name': 'Google-Nwu - 8148', 'gender': '', 'priority': 50}},
-              {'speaker': '1919', 'voice': 'af_ZA/google-nwu_low',
-               'meta': {'offline': True, 'display_name': 'Google-Nwu - 1919', 'gender': '', 'priority': 50}},
-              {'speaker': '2418', 'voice': 'af_ZA/google-nwu_low',
-               'meta': {'offline': True, 'display_name': 'Google-Nwu - 2418', 'gender': '', 'priority': 50}},
-              {'speaker': '6590', 'voice': 'af_ZA/google-nwu_low',
-               'meta': {'offline': True, 'display_name': 'Google-Nwu - 6590', 'gender': '', 'priority': 50}},
-              {'speaker': '0184', 'voice': 'af_ZA/google-nwu_low',
-               'meta': {'offline': True, 'display_name': 'Google-Nwu - 0184', 'gender': '', 'priority': 50}}],
+         'meta': {'offline': True, 'display_name': 'Google-Nwu - 7214', 'gender': '', 'priority': 50}},
+        {'speaker': '8963', 'voice': 'af_ZA/google-nwu_low',
+         'meta': {'offline': True, 'display_name': 'Google-Nwu - 8963', 'gender': '', 'priority': 50}},
+        {'speaker': '7130', 'voice': 'af_ZA/google-nwu_low',
+         'meta': {'offline': True, 'display_name': 'Google-Nwu - 7130', 'gender': '', 'priority': 50}},
+        {'speaker': '8924', 'voice': 'af_ZA/google-nwu_low',
+         'meta': {'offline': True, 'display_name': 'Google-Nwu - 8924', 'gender': '', 'priority': 50}},
+        {'speaker': '8148', 'voice': 'af_ZA/google-nwu_low',
+         'meta': {'offline': True, 'display_name': 'Google-Nwu - 8148', 'gender': '', 'priority': 50}},
+        {'speaker': '1919', 'voice': 'af_ZA/google-nwu_low',
+         'meta': {'offline': True, 'display_name': 'Google-Nwu - 1919', 'gender': '', 'priority': 50}},
+        {'speaker': '2418', 'voice': 'af_ZA/google-nwu_low',
+         'meta': {'offline': True, 'display_name': 'Google-Nwu - 2418', 'gender': '', 'priority': 50}},
+        {'speaker': '6590', 'voice': 'af_ZA/google-nwu_low',
+         'meta': {'offline': True, 'display_name': 'Google-Nwu - 6590', 'gender': '', 'priority': 50}},
+        {'speaker': '0184', 'voice': 'af_ZA/google-nwu_low',
+         'meta': {'offline': True, 'display_name': 'Google-Nwu - 0184', 'gender': '', 'priority': 50}}],
     'bn': [
         {'speaker': 'rm', 'voice': 'bn/multi_low',
          'meta': {'offline': True, 'display_name': 'Multi - Rm', 'gender': '', 'priority': 50}},
@@ -274,12 +314,11 @@ Mimic3TTSPluginConfig = {
          'meta': {'offline': True, 'display_name': 'M-Ailabs - Karlsson', 'priority': 31, 'gender': ''}},
         {'speaker': 'rebecca_braunert_plunkett', 'voice': 'de_DE/m-ailabs_low',
          'meta': {'offline': True, 'display_name': 'M-Ailabs - Rebecca Braunert Plunkett', 'priority': 31,
-                  'gender': ''}}, {'speaker': 'eva_k', 'voice': 'de_DE/m-ailabs_low',
-                                   'meta': {'offline': True, 'display_name': 'M-Ailabs - Eva K', 'priority': 31,
-                                            'gender': ''}}, {'speaker': 'angela_merkel', 'voice': 'de_DE/m-ailabs_low',
-                                                             'meta': {'offline': True,
-                                                                      'display_name': 'M-Ailabs - Angela Merkel',
-                                                                      'priority': 31, 'gender': ''}}],
+                  'gender': ''}},
+        {'speaker': 'eva_k', 'voice': 'de_DE/m-ailabs_low',
+         'meta': {'offline': True, 'display_name': 'M-Ailabs - Eva K', 'priority': 31, 'gender': ''}},
+        {'speaker': 'angela_merkel', 'voice': 'de_DE/m-ailabs_low',
+         'meta': {'offline': True, 'display_name': 'M-Ailabs - Angela Merkel', 'priority': 31, 'gender': ''}}],
     'el-gr': [
         {'speaker': 'default', 'voice': 'el_GR/rapunzelina_low',
          'meta': {'offline': True, 'display_name': 'Rapunzelina', 'priority': 40, 'gender': ''}}],
@@ -882,3 +921,11 @@ Mimic3TTSPluginConfig = {
     'yo': [
         {'speaker': 'default', 'voice': 'yo/openbible_low',
          'meta': {'offline': True, 'display_name': 'Openbible', 'gender': '', 'priority': 50}}]}
+
+if __name__ == "__main__":
+    tt = Mimic3TTSPlugin()
+    tt.get_tts("hello world", "test.wav")
+    tt.get_tts("hello world", "test2.wav", lang="en-gb")
+    tt.get_tts("hello world", "test3.wav", voice="en_US/cmu-arctic_low", speaker="slt")
+    tt.get_tts("hello world", "test4.wav", voice="en_US/cmu-arctic_low#lnh")
+    tt.get_tts("hello world", "test5.wav", voice="cmu-arctic_low#rms", lang="en-us")
